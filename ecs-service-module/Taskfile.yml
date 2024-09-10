@@ -1,0 +1,39 @@
+version: '3'
+
+tasks:
+  tf-init:
+    desc: Initialize terraform
+    aliases: [init]
+    cmds:
+      - terraform init -backend-config=environment/dev/backend.tfvars
+      
+  tf-validate:
+    desc: Validate terraform
+    aliases: [validate]
+    deps: [fmt]
+    cmds:
+      - terraform validate
+      
+  tf-apply:
+    desc: Apply terraform
+    aliases: [apply]
+    deps: [validate]
+    vars:
+      ENV: dev
+    cmds:
+      - terraform apply -auto-approve -var-file=environment/{{.ENV}}/terraform.tfvars
+
+  tf-format:
+    desc: Format all terraform files
+    aliases: [fmt]
+    cmds:
+      - terraform fmt --recursive
+
+  tf-destroy:
+    desc: Destroy all services created by terraform
+    aliases: [destroy]
+    deps: [validate]
+    vars:
+      ENV: dev
+    cmds:
+      - terraform destroy -auto-approve -var-file=environment/{{.ENV}}/terraform.tfvars
