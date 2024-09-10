@@ -1,13 +1,19 @@
 version: '3'
 
 tasks:
+  tf-init:
+    desc: Initialize terraform
+    aliases: [init]
+    cmds:
+      - terraform init -backend-config=environment/dev/backend.tfvars
+      
   tf-validate:
     desc: Validate terraform
     aliases: [validate]
     deps: [fmt]
     cmds:
       - terraform validate
-
+      
   tf-apply:
     desc: Apply terraform
     aliases: [apply]
@@ -15,15 +21,13 @@ tasks:
     vars:
       ENV: dev
     cmds:
-      - for: ['vpc', 'ecs-cluster', 'ecs-app/terraform']
-        cmd: cd {{ .ITEM }} && terraform apply -auto-approve -var-file=environment/{{.ENV}}/terraform.tfvars
+      - terraform apply -auto-approve -var-file=environment/{{.ENV}}/terraform.tfvars
 
   tf-format:
     desc: Format all terraform files
     aliases: [fmt]
     cmds:
-      - for: ['vpc', 'ecs-cluster', 'ecs-service-module', 'ecs-app/terraform']
-        cmd: cd {{ .ITEM }} && terraform fmt --recursive
+      - terraform fmt --recursive
 
   tf-destroy:
     desc: Destroy all services created by terraform
@@ -32,5 +36,4 @@ tasks:
     vars:
       ENV: dev
     cmds:
-      - for: ['ecs-app/terraform', 'ecs-cluster', 'vpc']
-        cmd: cd {{ .ITEM }} && terraform destroy -auto-approve -var-file=environment/{{.ENV}}/terraform.tfvars
+      - terraform destroy -auto-approve -var-file=environment/{{.ENV}}/terraform.tfvars
